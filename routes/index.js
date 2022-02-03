@@ -6,6 +6,6 @@ router.get("/", (req, res) => {
   res.json({ message: "ok" });
 });
 
-router.use("/user", auth);
+router.use("/users", auth);
 
 module.exports = router;
