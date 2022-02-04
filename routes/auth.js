@@ -3,7 +3,7 @@ var router = express.Router();
 const { validateLogin, validateRegister } = require("../middlewares/validators/userValidator");
 const { login, register } = require("../controllers/authController");
 
-router.post("/login", validateLogin, login);
+router.post("/login", login);
 
 router.post("/register", validateRegister, register);
 

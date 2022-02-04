@@ -19,8 +19,8 @@ sequelize
   .then(() => {
     console.log("connected");
   })
-  .catch((err) => {
-    console.log("Error " + err);
-  });
+  // .catch((err) => {
+  //   console.log("Error " + err);
+  // });
 
 module.exports = sequelize;
