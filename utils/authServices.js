@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+
 require("dotenv").config();
 
 module.exports.hashedPassword = async (password) => {
@@ -16,4 +18,14 @@ module.exports.createToken = (user) => {
     return jwt.sign(user, process.env.JWT_SECRET, {
         expiresIn: '7d'
     } )
+}
+
+module.exports.getResetPasswordToken = () =>{
+    
+    // Generating Token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    // Hashing and adding resetPasswordToken to userSchema
+    return crypto.createHash("sha256").update(resetToken).digest("hex");
+
+     
 }

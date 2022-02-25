@@ -17,3 +17,7 @@ exports.validateRegister = [
     check("role", "role must be in employ, user").isIn(['employ', 'user'])
   
   ]
+
+  exports.validateforgotPassword = [
+      check("email", "please enter valid email").isEmail().normalizeEmail()
+  ]

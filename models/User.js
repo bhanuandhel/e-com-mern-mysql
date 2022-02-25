@@ -25,6 +25,9 @@ const Users = sequelize.define("users", {
                             type:   DataTypes.ENUM,
                             values: ['admin', 'employ', 'user']
                         },
+                        resetPasswordToken:{
+                            type: DataTypes.STRING
+                        },
                         status:{
                             type: DataTypes.BOOLEAN,
                         }

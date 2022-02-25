@@ -1,10 +1,14 @@
 const ErrorHandler = require("../utils/errorhandler");
 const { check, validationResult } = require("express-validator");
 const Users = require("../models/User");
+const sendEmail = require("../utils/sendEmail");
+
+
 const {
   hashedPassword,
   createToken,
   comparePassword,
+  getResetPasswordToken
 } = require("../utils/authServices");
 
 // login
@@ -102,6 +106,58 @@ const register = async (req, resp, next) => {
   return resp.status(200).json(response);
 };
 
+// forgotPassword
+
+const forgotPassword = async(req, resp, next)=>{
+  const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+    // validations failed
+      return resp.status(400).json({ errors: errors.array() });
+    } else {
+      const { email } = req.body;
+      try {
+         const emailExist = await Users.findOne({ where: { email } });
+          if(!emailExist){
+            return resp.status(401).json("email not found!");
+          }else{
+                  const resetPasswordToken = await getResetPasswordToken();
+                  const user = await Users.update({resetPasswordToken}, {where: { email }});
+                  const resetPasswordUrl = `${req.protocol}://${req.get(
+                                              "host"
+                                            )}/password/reset/${resetPasswordToken}`;
+                  const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
+
+                     try {
+
+                        await sendEmail({
+                            email: emailExist.email,
+                            subject: `Ecommerce Password Recovery`,
+                            message,
+                        });
+
+                      return  resp.status(200).json({
+                          success: true,
+                          message: `Email sent to ${user.email} successfully`,
+                        });
+                        
+                      } catch (error) {
+                          console.log(error.message);
+                          return resp.status(500).json("Server internal error!");
+                    }
+          }
+
+      } catch(error){
+          console.log(error.message);
+          return resp.status(500).json("Server internal error!");
+      }
+    }
+
+      const response = {
+        data: "forgotPassword",
+      };
+  return resp.status(200).json(response);
+}
+
 // Logout User
 
 const logout = async (req, resp, next) => {
@@ -124,5 +180,6 @@ const logout = async (req, resp, next) => {
 module.exports = {
   login,
   register,
+  forgotPassword,
   logout,
 };

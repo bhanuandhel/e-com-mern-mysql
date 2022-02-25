@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
-const { validateLogin, validateRegister } = require("../middlewares/validators/userValidator");
-const { login, register, logout } = require("../controllers/authController");
+const { validateLogin, validateRegister, validateforgotPassword } = require("../middlewares/validators/userValidator");
+const { login, register, forgotPassword, logout } = require("../controllers/authController");
 
 // api = login
 // url = http://localhost:5000/api/users/login
@@ -16,6 +16,13 @@ router.post("/login", validateLogin, login);
 // parameter = {"name":"bhanu", "email":"bhanupratap636@gmail.com", "phone":"9758760136","password":"bhnau@123", "role":"user" }
 
 router.post("/register", validateRegister, register);
+
+// api = forgotPassword
+// url = http://localhost:5000/api/users/forgot-password
+// type = post
+// parameter = {"email":"bhanupratap636@gmail.com" }
+
+router.post("/forgot-password", validateforgotPassword,  forgotPassword)
 
 // api = logout
 // url = http://localhost:5000/api/users/logout
