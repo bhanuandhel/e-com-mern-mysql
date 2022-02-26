@@ -1,10 +1,10 @@
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
-const HOSTNAME = process.env.DB_HOST || 'sql6.freemysqlhosting.net';
-const DATABASE = process.env.DB_DATABASE || 'sql6469426';
-const USERNAME = process.env.DB_USER || 'sql6469426';
-const PASSWORD = process.env.DB_USER=='root' ?'' : 'gErX8DuuBE'
+const HOSTNAME =  'sql6.freemysqlhosting.net';
+const DATABASE =  'sql6469426';
+const USERNAME =  'sql6469426';
+const PASSWORD =  'gErX8DuuBE'
 
 console.log('--------------------------------------------------', PASSWORD, '--------------------')
 const sequelize = new Sequelize(DATABASE, USERNAME, PASSWORD, {
