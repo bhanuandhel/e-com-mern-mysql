@@ -1,5 +1,6 @@
 const ErrorHandler = require("../utils/errorhandler");
 const { check, validationResult } = require("express-validator");
+const crypto = require("crypto");
 const Users = require("../models/User");
 const sendEmail = require("../utils/sendEmail");
 
@@ -124,11 +125,10 @@ const forgotPassword = async(req, resp, next)=>{
                   const user = await Users.update({resetPasswordToken}, {where: { email }});
                   const resetPasswordUrl = `${req.protocol}://${req.get(
                                               "host"
-                                            )}/password/reset/${resetPasswordToken}`;
+                                            )}/password/reset?token=${resetPasswordToken}&email=${email}`;
                   const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
 
                      try {
-
                         await sendEmail({
                             email: emailExist.email,
                             subject: `Ecommerce Password Recovery`,
@@ -137,7 +137,7 @@ const forgotPassword = async(req, resp, next)=>{
 
                       return  resp.status(200).json({
                           success: true,
-                          message: `Email sent to ${user.email} successfully`,
+                          message: `Email sent to ${emailExist.email} successfully`,
                         });
                         
                       } catch (error) {
@@ -154,6 +154,82 @@ const forgotPassword = async(req, resp, next)=>{
 
       const response = {
         data: "forgotPassword",
+      };
+  return resp.status(200).json(response);
+}
+
+
+// reset password
+
+const resetPassword = async (req, resp, next)=>{
+
+    const errors = validationResult(req);
+
+    // validations failed
+    if (!errors.isEmpty()) {
+        return resp.status(400).json({ errors: errors.array() });
+    }
+
+      const {token, email, newPassword } = req.body;
+      const password = await hashedPassword(newPassword);
+
+        try {
+          const user = await Users.findOne({where: { resetPasswordToken : token}});
+         if (!user) {
+              return resp.status(400).json({ errors: "Reset Password Token is invalid or has been expired" }); 
+          }
+
+           try {
+                await Users.update({resetPasswordToken:null, password}, {where: { email }});
+                return  resp.status(200).json({
+                      success: true,
+                      message: `password is reset successfully`,
+                    });  
+              } catch (error) {
+                      console.log(error.message);
+                      return resp.status(500).json("Server internal error!");
+            }
+
+
+        } catch (error) {
+            console.log(error.message);
+            return resp.status(500).json("Server internal error!");
+        }
+
+       const response = {
+        data: "resetPassword",
+      };
+  return resp.status(200).json(response);
+}
+
+
+// change password
+
+const changePassword = async (req, resp, next)=>{
+    console.log(req.user.name, req.body.password, req.body.passwordConfirmation)
+    const {password, passwordConfirmation} = req.body
+    const errors = validationResult(req);
+      // validations failed
+      if (!errors.isEmpty()) {
+        return resp.status(400).json({ errors: errors.array() });
+      }
+
+        try {
+              const hashed = await hashedPassword(password);
+              await Users.update({password: hashed}, {where: { id : req.user.id }, returning: true,plain: true});
+              
+              return  resp.status(200).json({
+                      success: true,
+                      message: `password is change successfully`,
+                    }); 
+          
+        } catch (error) {
+          console.log(error.message);
+          return resp.status(500).json("Server internal error!");
+        }
+
+     const response = {
+        data: "changePassword",
       };
   return resp.status(200).json(response);
 }
@@ -181,5 +257,7 @@ module.exports = {
   login,
   register,
   forgotPassword,
+  resetPassword,
+  changePassword,
   logout,
 };

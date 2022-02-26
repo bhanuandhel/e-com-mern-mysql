@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const sequelize = require("./utils/database");
 const app = express();
 require("dotenv").config();
@@ -10,6 +11,8 @@ const routes = require("./routes");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 
 // Handling Uncaught Exception
 // console.log(youtube)
